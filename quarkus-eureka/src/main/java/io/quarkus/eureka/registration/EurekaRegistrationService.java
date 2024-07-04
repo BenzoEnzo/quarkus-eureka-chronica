@@ -28,59 +28,52 @@ import io.quarkus.eureka.operation.query.MultipleInstanceQueryOperation;
 import io.quarkus.eureka.operation.register.RegisterOperation;
 
 import java.util.List;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
 import static io.quarkus.eureka.client.Status.UP;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
-@FunctionalInterface
-public interface EurekaInstancesRegistration {
+public class EurekaRegistrationService {
 
+    private final InstanceInfo instanceInfo;
 
-    public abstract void register(final ScheduledExecutorService scheduledExecutorService);
+    private final ScheduledExecutorService executorService;
 
-
-    public static EurekaInstancesRegistration createRegistration(final ServiceLocationConfig serviceLocationConfig,
-                                                                 final InstanceInfo instanceInfo,
-                                                                 final OperationFactory operationFactory) {
-
-        var eurekaSingleInstanceRegister = new EurekaSingleInstanceRegister(instanceInfo, operationFactory);
-
-        return (executorService) -> serviceLocationConfig.getLocations().forEach(
-                location -> registerInstance(executorService, eurekaSingleInstanceRegister, location));
-    }
-
-    private static void registerInstance(final ScheduledExecutorService executorService,
-                                         final EurekaSingleInstanceRegister eurekaSingleInstanceRegister,
-                                         final Location location) {
-        final long initialDelay = 2L;
-        final long fixedDelay = 40L;
-
-        executorService.scheduleWithFixedDelay(
-                eurekaSingleInstanceRegister.registerLocation(location),
-                initialDelay,
-                fixedDelay,
-                TimeUnit.SECONDS
-        );
-    }
-
-}
-
-class EurekaSingleInstanceRegister {
+    private final ServiceLocationConfig serviceLocationConfig;
 
     private final OperationFactory operationFactory;
-    private final InstanceInfo instanceInfo;
+
     private final InstanceHealthCheckService instanceHealthCheckService;
 
-    public EurekaSingleInstanceRegister(InstanceInfo instanceInfo, OperationFactory operationFactory) {
+    public EurekaRegistrationService(final ServiceLocationConfig serviceLocationConfig,
+                                     final InstanceInfo instanceInfo,
+                                     final OperationFactory operationFactory) {
+        this(serviceLocationConfig, instanceInfo, operationFactory, Executors.newScheduledThreadPool(3));
+    }
+
+    public EurekaRegistrationService(final ServiceLocationConfig serviceLocationConfig,
+                                     final InstanceInfo instanceInfo,
+                                     final OperationFactory operationFactory,
+                                     final ScheduledExecutorService executorService) {
         this.instanceInfo = instanceInfo;
+        this.serviceLocationConfig = serviceLocationConfig;
+        this.executorService = executorService;
         this.operationFactory = operationFactory;
         this.instanceHealthCheckService = new InstanceHealthCheckService();
     }
 
-    Runnable registerLocation(final Location location) {
+    public void register() {
+
+        serviceLocationConfig.getLocations()
+                .forEach(location -> executorService.scheduleWithFixedDelay(
+                        this.registerSingleLocation(location), instanceInfo.getHealthCheckInitialDelay(), 40L, SECONDS
+                ));
+    }
+
+    private Runnable registerSingleLocation(final Location location) {
         return () -> RegistrationFlow.instanceHealthCheck(
                 () -> instanceHealthCheckService.healthCheck(instanceInfo.getHealthCheckUrl())
         ).eurekaHealthCheck(() ->
@@ -105,9 +98,15 @@ class EurekaSingleInstanceRegister {
                 .findFirst().orElse(InstanceResult.error());
     }
 
-    private record RegistrationFlow(Status status) {
+    private static class RegistrationFlow {
 
         private static final Logger LOGGER = Logger.getLogger(RegistrationFlow.class.getName());
+
+        private final Status status;
+
+        private RegistrationFlow(final Status status) {
+            this.status = status;
+        }
 
         private static RegistrationFlow instanceHealthCheck(final Supplier<Status> statusSupplier) {
             try {
@@ -128,4 +127,5 @@ class EurekaSingleInstanceRegister {
         }
 
     }
+
 }

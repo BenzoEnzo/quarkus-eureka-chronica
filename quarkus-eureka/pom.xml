@@ -20,11 +20,12 @@
     <parent>
         <artifactId>quarkus-eureka-parent</artifactId>
         <groupId>com.github.fmcejudo</groupId>
-        <version>1.1.2-SNAPSHOT</version>
+        <version>1.0.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>quarkus-eureka</artifactId>
+
     <name>quarkus-eureka</name>
     
     <dependencies>
@@ -37,20 +38,16 @@
             <artifactId>quarkus-undertow</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-rest</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-rest-client</artifactId>
+            <artifactId>quarkus-resteasy-reactive</artifactId>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-rest-client-jackson</artifactId>
+            <artifactId>quarkus-resteasy-reactive-jackson</artifactId>
         </dependency>
         <dependency>
             <groupId>io.rest-assured</groupId>
@@ -73,7 +70,6 @@
             <plugin>
                 <groupId>io.quarkus</groupId>
                 <artifactId>quarkus-extension-maven-plugin</artifactId>
-                <version>3.10.0</version>
                 <!-- Executions configuration can be inherited from quarkus-build-parent -->
                 <executions>
                     <execution>
@@ -103,4 +99,5 @@
             </plugin>
         </plugins>
     </build>
+
 </project>
