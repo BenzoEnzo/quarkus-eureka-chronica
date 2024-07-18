@@ -20,7 +20,7 @@
 
     <parent>
         <artifactId>quarkus-eureka-parent</artifactId>
-        <groupId>com.github.fmcejudo</groupId>
+        <groupId>com.github.BenzoEnzo</groupId>
         <version>1.0.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
@@ -38,9 +38,9 @@
             <artifactId>quarkus-undertow-deployment</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.github.fmcejudo</groupId>
+            <groupId>com.github.BenzoEnzo</groupId>
             <artifactId>quarkus-eureka</artifactId>
-            <version>${project.version}</version>
+            <version>1.0.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>
