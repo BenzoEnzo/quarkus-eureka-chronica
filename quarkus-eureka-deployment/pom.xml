@@ -19,9 +19,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>quarkus-eureka-parent</artifactId>
+        <artifactId>quarkus-eureka-resteasy-client</artifactId>
         <groupId>com.github.BenzoEnzo</groupId>
-        <version>1.0.1-SNAPSHOT</version>
+        <version>quarkus-eureka-resteasy-client-0.0.9</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -40,7 +40,7 @@
         <dependency>
             <groupId>com.github.BenzoEnzo</groupId>
             <artifactId>quarkus-eureka</artifactId>
-            <version>1.0.1-SNAPSHOT</version>
+            <version>quarkus-eureka-resteasy-client-0.0.9</version>
         </dependency>
 
         <dependency>
